@@ -1,4 +1,4 @@
-from src.games.models import Game, Choice, Player
+from src.games.models import Game, Choice, Interaction
 def determine_winner(game: Game):     
     choices = Choice.objects.filter(game=game)
     choices_theory = {'rock': 'scissor', 'scissor': 'paper', 'paper': 'rock'}

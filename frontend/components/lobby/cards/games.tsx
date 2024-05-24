@@ -8,7 +8,7 @@ import { GameType } from '@/types/game'
 import { LinkButton } from '@/components/ui/link-button'
 import { useAuth } from '@/contexts/auth-context';
 import { getSession } from '@/lib/sessions'
-export default async function GamesCard({ getGames }: { getGames: () => Promise<GameType[]> }) {
+export default async function GamesCard({ getGames }: { getGames: () => Promise<GameType[] | undefined> }) {
     const sessions = await getSession()
     const user = sessions?.user
     const games = await getGames()
@@ -29,8 +29,8 @@ export default async function GamesCard({ getGames }: { getGames: () => Promise<
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {games.map((game, _) => (
-                            <TableRow>
+                        {games && games.map((game, _) => (
+                            <TableRow key={game.id}>
                                 <TableCell>{game.mode}</TableCell>
                                 <TableCell>{game.status == 'Full' ? '2/2' : '1/2'}</TableCell>
                                 <TableCell>

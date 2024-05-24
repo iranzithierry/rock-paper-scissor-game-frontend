@@ -33,12 +33,12 @@ export default function LeaderBoardCard() {
                             <TableCell>12345</TableCell>
                             <TableCell>
                                 <Avatar>
-                                    <AvatarImage alt="@jaredpalmer" src="/placeholder-avatar.jpg" />
+                                    <AvatarImage alt="@iranzithierry" src="/placeholder-avatar.jpg" />
                                     <AvatarFallback>JP</AvatarFallback>
                                 </Avatar>
                             </TableCell>
                             <TableCell>
-                                <p className="font-medium text-nowrap">Jared Palmer</p>
+                                <p className="font-medium text-nowrap">IRANZI Thierry</p>
                             </TableCell>
                         </TableRow>
 

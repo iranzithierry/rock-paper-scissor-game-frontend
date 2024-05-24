@@ -3,16 +3,27 @@ from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 from src.users.models import User
 from src.users.permissions import IsUserOrReadOnly
-from src.users.serializers import CreateUserSerializer, UserSerializer, CustomTokenObtainPairSerializer
+from src.users.serializers import (
+    CreateUserSerializer,
+    UserSerializer,
+    CustomTokenObtainPairSerializer,
+    CustomTokenRefreshSerializer,
+)
 
 
-class UserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet, mixins.ListModelMixin):
+class UserViewSet(
+    mixins.CreateModelMixin, 
+    mixins.RetrieveModelMixin, 
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin, 
+    viewsets.GenericViewSet, 
+):
     """
     Creates, Updates and Retrieves - User Accounts
     """
@@ -37,9 +48,11 @@ class UserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Cre
             return Response(UserSerializer(self.request.user, context={'request': self.request}).data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': 'Wrong auth token' + e}, status=status.HTTP_400_BAD_REQUEST)
-        
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    # Replace the serializer with your custom
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    serializer_class = CustomTokenRefreshSerializer

@@ -4,9 +4,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-)
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -14,10 +11,10 @@ from src.social.views import exchange_token, complete_twitter_login
 from src.files.urls import files_router
 from src.users.urls import users_router
 from src.games.urls import games_router
-from src.users.views import CustomTokenObtainPairView
+from src.users.views import CustomTokenObtainPairView, CustomTokenRefreshView
 
 schema_view = get_schema_view(
-    openapi.Info(title="Pastebin API", default_version='v1'),
+    openapi.Info(title="Skizzy API", default_version='v1'),
     public=True,
 )
 
@@ -39,7 +36,7 @@ urlpatterns = [
     # auth
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/v1/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     # social login
     path('', include('social_django.urls', namespace='social')),
     re_path(r'^complete/twitter/?', complete_twitter_login),

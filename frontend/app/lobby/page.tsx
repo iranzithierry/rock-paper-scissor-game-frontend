@@ -10,6 +10,8 @@ import { UserType } from '@/types/auth'
 import { GameType } from '@/types/game'
 import axiosAuth from '@/lib/hooks/use-axios-auth'
 import CardSkeleton from '@/components/lobby/skeletons/lobby'
+import { AxiosError } from 'axios'
+import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
     title: "Lobby",
@@ -30,13 +32,33 @@ export default async function LobbyPage() {
 }
 const searchUsers = async (query: string) => {
     "use server";
-    const { data }: { data: SearchType } = await axios.get(BACKEND_URLS.SEARCH.replace("{query}", query))
-    return data.results as UserType[]
+    try {
+        const { data }: { data: SearchType } = await axios.get(BACKEND_URLS.SEARCH.replace("{query}", query))
+        return data.results as UserType[]
+    } catch (err) {
+        const error = err as AxiosError
+        if (error?.response?.status === 401) {
+            return redirect('/refresh?redirect_back=/lobby')
+        }
+        if(error?.response?.status === 403) {
+            return redirect('/logout?redirect_back=/lobby')
+        }
+    }
 }
 const getGames = async () => {
     "use server";
-    const { data }: { data: SearchType } = await axiosAuth.get(BACKEND_URLS.GAMES)
-    return data.results as GameType[] ;
+    try {
+        const { data }: { data: SearchType } = await axiosAuth.get(BACKEND_URLS.GAMES)
+        return data.results as GameType[];
+    } catch (err) {
+        const error = err as AxiosError
+        if (error?.response?.status === 401) {
+            return redirect('/refresh?redirect_back=/lobby')
+        }
+        if(error?.response?.status === 403) {
+            return redirect('/logout?redirect_back=/lobby')
+        }
+    }
 }
 
 

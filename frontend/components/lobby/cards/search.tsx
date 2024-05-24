@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import React, { useCallback, useState } from 'react'
 import { CardTitle, CardDescription, CardHeader, CardContent, Card } from "@/components/ui/card"
 
-export default function SearchCard({ searchUsers }: { searchUsers: (query: string) => Promise<UserType[]> }) {
+export default function SearchCard({ searchUsers }: { searchUsers: (query: string) => Promise<UserType[] | undefined> }) {
     const [users, setUsers] = useState<UserType[]>([])
     const [searching, setSearching] = useState<boolean>(false);
     const [notFound, setNotFound] = useState<boolean>(false);
@@ -19,7 +19,7 @@ export default function SearchCard({ searchUsers }: { searchUsers: (query: strin
         setSearching(true);
         if (query.length > 1) {
             const usersAsData = await searchUsers(query)
-            if (usersAsData.length !== 0) {
+            if (usersAsData && usersAsData.length !== 0) {
                 setUsers(usersAsData)
             } else {
                 setUsers([])

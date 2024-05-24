@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Card, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { TimerIcon } from 'lucide-react';
+import { RefreshCcw, TimerIcon } from 'lucide-react';
 import { Player } from '@/types/ws';
 import { useCountdown } from '@/lib/hooks/use-count-down';
 import UserUvatar from '@/components/user-avatar';
@@ -19,14 +19,15 @@ const options = [
 ]
 
 export default function GamePlay() {
-    
+
     const onFinish = () => { }
 
+
     const { user } = useAuth()
-    const { players, choices, makeChoice, joinGame } = useGame();
+    const { players, choices, makeChoice, joinGame, startGame, resetGame } = useGame();
     const { countDown, startCountDown } = useCountdown(5, onFinish);
 
-    const statusPlayers = (status = "online") => players.filter(player => player.status === status);
+    const statusPlayers = (status = "connected") => players.filter(player => player.status === status);
     const areTwoPlayers = getTwoPlayers(statusPlayers, players);
 
     return (
@@ -40,8 +41,8 @@ export default function GamePlay() {
                     </div>
                 </div>
             </CardHeader>
-            <div className="grid grid-cols-2 gap-6 min-h-72">
-                <div className="rounded-lg border border-border p-4 dark:bg-muted flex flex-col justify-between">
+            <div className="grid grid-cols-1  md:grid-cols-2 gap-6 min-h-72">
+                <div className="rounded-lg border border-border gap-2 p-4 dark:bg-muted flex flex-col justify-between">
                     <div>
                         <p className="text-gray-400">Join a lobby and challenge other players.</p>
                         <div className="space-y-2">
@@ -58,7 +59,7 @@ export default function GamePlay() {
                         }
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button className='w-full' disabled={!areTwoPlayers()} onClick={() => startCountDown()}>Start Game</Button>
+                                <Button className='w-full' disabled={!areTwoPlayers()} onClick={() => startGame()}>Start Game</Button>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>{!areTwoPlayers() ? "You must be 2 players to start game" : "Click to start game"} </p>
@@ -68,10 +69,17 @@ export default function GamePlay() {
                 </div>
                 <div className={`rounded-lg border border-border p-4 dark:bg-muted`}>
                     <div className='flex justify-between w-full mb-4'>
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Game</h2>
+                        <div className='flex space-x-2 items-center'>
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Game</h2>
+                            <span className='flex items-center'>
+                            <TimerIcon className="h-4 w-4" />
+                            <p className="text-base font-medium">{countDown}</p>
+                            </span>
+                        </div>
                         <div className="flex items-center space-x-1">
-                            <TimerIcon className="h-5 w-5" />
-                            <p className="text-lg font-medium">{countDown}</p>
+                            <Button size={'icon'} variant={'outline'} onClick={() => resetGame()}>
+                                <RefreshCcw className="h-5 w-5" />
+                            </Button>
                         </div>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6">
@@ -109,11 +117,11 @@ export default function GamePlay() {
 const PlayerCard = ({ player }: { player: Player }) => {
     return (
         <div className="flex items-center space-x-2 w-full">
-            <UserUvatar user={player}/>
+            <UserUvatar user={player} />
             <div className='flex flex-col w-full'>
                 <p className="text-lg font-medium">{player.username}</p>
                 <div className='flex justify-between'>
-                    <Badge variant={player.status === 'online' ? 'success' : 'warning'} className='capitalize'>{player.status}</Badge>
+                    <Badge variant={player.status === 'connected' ? 'success' : 'warning'} className='capitalize'>{player.status}</Badge>
                 </div>
             </div>
         </div>
@@ -121,5 +129,5 @@ const PlayerCard = ({ player }: { player: Player }) => {
 }
 
 function getTwoPlayers(statusPlayers: (status?: string) => Player[], players: Player[]) {
-    return (status = "online") => status == 'online' ? statusPlayers().length === 2 : players.length === 2;
+    return (status = "connected") => status == 'connected' ? statusPlayers().length === 2 : players.length === 2;
 }

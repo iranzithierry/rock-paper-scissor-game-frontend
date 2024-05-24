@@ -219,6 +219,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'src.games.asgi.consumers': {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        },
         'django.request': {
             'handlers': ['mail_admins', 'console'],
             'level': 'ERROR',
@@ -308,8 +312,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
@@ -318,6 +322,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {'anon': '100/second', 'user': '1000/second', 'subscribe': '60/minute'},
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
 APP_JWT_SIGNING_KEY=os.getenv("APP_JWT_SIGNING_KEY")
@@ -370,7 +375,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.getenv("REDIS_HOST"), int(os.getenv("REDIS_PORT")))],
+            "hosts": [(os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"))],
         },
     },
 }

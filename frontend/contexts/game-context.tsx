@@ -5,13 +5,15 @@ import { useAuth } from "./auth-context";
 import { toast } from "sonner";
 import { Choice, Player } from "@/types/ws";
 
-const DefaultProps = { players: [], choices: [], makeChoice: () => { }, joinGame: () => { }, };
+const DefaultProps = { players: [], choices: [], makeChoice: () => { }, joinGame: () => { }, startGame: () => { }, resetGame: () => { }};
 
 export interface GameProps {
   players: Player[];
   choices: Choice[];
   makeChoice: (choice: string) => void;
   joinGame: () => void;
+  startGame: () => void;
+  resetGame: () => void
 }
 
 export const GameContext = createContext<GameProps>(DefaultProps);
@@ -22,8 +24,9 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
   const [players, setPlayers] = useState<Player[]>([]);
   const [choices, setChoices] = useState<Choice[]>([]);
 
+  const HOST = "192.168.1.164:8000"
   const { sendJsonMessage } = useWebSocket(
-    `ws://127.0.0.1:8000/game/${gameId}/`,
+    `ws://${HOST}/game/${gameId}/`,
     {
       queryParams: {
         token: accessToken ?? "",
@@ -40,13 +43,12 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
 
       onMessage: (e: MessageEvent) => {
         const data = JSON.parse(e.data);
-        console.log(data);
-        
+        console.log("Received something", data);
         switch (data.type) {
-          case "update_uplayers":
+          case "update_players":
             setPlayers(data.players);
             break;
-          case 'preview_choices':
+          case 'display_choices':
             setChoices(data.choices);
             break;
           case "game_notification":
@@ -58,16 +60,22 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
   );
 
   const makeChoice = (choice: string) => {
-    if (user) sendJsonMessage({ type: "make_choice", choice: choice });
+    if (user) sendJsonMessage({ type: "choose", choice: choice });
   };
 
   const joinGame = () => {
-    if (user) sendJsonMessage({ type: "join_game" });
+    if (user) sendJsonMessage({ type: "join" });
   };
+  const startGame = () => {
+    if (user) sendJsonMessage({ type: "start" });
+  }
+  const resetGame = () => {
+    if (user) sendJsonMessage({ type: "reset" });
+  }
 
   return (
     <GameContext.Provider
-      value={{ players, choices, makeChoice, joinGame }}>
+      value={{ players, choices, makeChoice, joinGame, startGame, resetGame }}>
       {children}
     </GameContext.Provider>
   );

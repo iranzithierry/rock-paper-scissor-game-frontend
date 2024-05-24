@@ -1,4 +1,4 @@
-const HOST = "http://127.0.0.1:8000"
+const HOST = "http://192.168.1.164:8000"
 const BACKEND_URLS = {
     SIGNUP: `${HOST}/api/v1/users/`,
     LOGIN: `${HOST}/api/v1/token/`,

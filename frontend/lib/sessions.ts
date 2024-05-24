@@ -13,7 +13,8 @@ const getCookieSessionValue = () => cookies().get("session")?.value;
 
 export async function createSession(payload: object) {
   const session = await encrypt(payload, COOKIE_TIME.USER_SESSION_STRING)
-  cookies().set("session", session, { httpOnly: true, secure: true, maxAge: COOKIE_TIME.USER_SESSION, sameSite: 'lax', path: '/', })
+  // SET TO TRUE IN PRODU
+  cookies().set("session", session, { httpOnly: true, secure: false, maxAge: COOKIE_TIME.USER_SESSION, sameSite: 'lax', path: '/', })
 }
 
 

@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children, }: { children: React.R
           user={await getSession().then((session) => session?.user ?? null)}
           accessToken={await getCookie(COOKIE_NAMES.ACCESS_TOKEN)}>
             <Header />
-            <section className="flex flex-col flex-1 p-4 h-full dark:bg-muted">
+            <section className="flex flex-col flex-1 h-full dark:bg-muted">
               {children}
             </section>
         </AuthProvider>
