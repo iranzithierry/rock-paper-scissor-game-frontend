@@ -8,6 +8,8 @@ import { GameType } from '@/types/game'
 import { LinkButton } from '@/components/ui/link-button'
 import { useAuth } from '@/contexts/auth-context';
 import { getSession } from '@/lib/sessions'
+import {Popover, PopoverTrigger, PopoverContent} from '@/components/ui/popover'
+import { Form } from '@/components/auth/form'
 export default async function GamesCard({ getGames }: { getGames: () => Promise<GameType[] | undefined> }) {
     const sessions = await getSession()
     const user = sessions?.user
@@ -50,9 +52,7 @@ export default async function GamesCard({ getGames }: { getGames: () => Promise<
                 </Table>
             </CardContent>
             <CardFooter>
-                <Button className="ml-auto" size="sm">
-                    Create Game
-                </Button>
+               <LinkButton className="ml-auto" linkTo="/lobby/create" size="sm">Create Game</LinkButton>
             </CardFooter>
         </Card>
     )

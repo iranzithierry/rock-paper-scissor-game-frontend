@@ -24,8 +24,8 @@ export default function GamePlay() {
 
 
     const { user } = useAuth()
-    const { players, choices, makeChoice, joinGame, startGame, resetGame } = useGame();
-    const { countDown, startCountDown } = useCountdown(5, onFinish);
+    const { players, countDown, choices, makeChoice, startGame, resetGame } = useGame();
+
 
     const statusPlayers = (status = "connected") => players.filter(player => player.status === status);
     const areTwoPlayers = getTwoPlayers(statusPlayers, players);
@@ -54,12 +54,11 @@ export default function GamePlay() {
                         </div>
                     </div>
                     <div className='space-y-1 w-full'>
-                        {!areTwoPlayers() &&
-                            <Button className='w-full' onClick={() => joinGame()}>Join Game</Button>
-                        }
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button className='w-full' disabled={!areTwoPlayers()} onClick={() => startGame()}>Start Game</Button>
+                                <Button className='w-full' disabled={countDown < 10 || !areTwoPlayers()}onClick={() => startGame()}>
+                                    Start Game
+                                </Button>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>{!areTwoPlayers() ? "You must be 2 players to start game" : "Click to start game"} </p>
@@ -71,15 +70,10 @@ export default function GamePlay() {
                     <div className='flex justify-between w-full mb-4'>
                         <div className='flex space-x-2 items-center'>
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Game</h2>
-                            <span className='flex items-center'>
-                            <TimerIcon className="h-4 w-4" />
-                            <p className="text-base font-medium">{countDown}</p>
-                            </span>
                         </div>
                         <div className="flex items-center space-x-1">
-                            <Button size={'icon'} variant={'outline'} onClick={() => resetGame()}>
-                                <RefreshCcw className="h-5 w-5" />
-                            </Button>
+                            <TimerIcon className="h-4 w-4" />
+                            <p className="text-base font-medium">{countDown}</p>
                         </div>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6">
@@ -87,7 +81,7 @@ export default function GamePlay() {
                             {options.map((option, index) => (
                                 <Tooltip key={index}>
                                     <TooltipTrigger asChild>
-                                        <Button disabled={!areTwoPlayers()} variant={'outline'} onClick={() => makeChoice(option.value)} className='h-16 w-16 rounded-full text-4xl'>
+                                        <Button disabled={!areTwoPlayers() || countDown > 10} variant={'outline'} onClick={() => makeChoice(option.value)} className='h-16 w-16 rounded-full text-4xl'>
                                             {option.icon}
                                         </Button>
                                     </TooltipTrigger>
@@ -97,13 +91,20 @@ export default function GamePlay() {
                                 </Tooltip>
                             ))}
                         </div>
-                        <div className="text-center">
+                        <div className="text-center w-full">
                             <ul>
                                 {choices.length !== 0 && choices.map((choice, index) => (
                                     <li key={index}>
-                                        {choice.player} chose {choice.choice}
+                                        <div className="rounded-md border px-4 py-2 font-mono text-sm shadow-sm">
+                                            {choice.player} chose <span className='font-semibold capitalize'>{choice.choice}</span>
+                                        </div>
                                     </li>
                                 ))}
+                                {choices.length !== 0 &&
+                                    <Button size={'lg'} className='w-full' variant={'outline'} onClick={() => resetGame()}>
+                                        Reset <RefreshCcw className="h-4 w-4 ml-2" />
+                                    </Button>
+                                }
                             </ul>
                         </div>
                     </div>

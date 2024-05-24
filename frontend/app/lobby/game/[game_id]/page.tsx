@@ -9,23 +9,27 @@ import BACKEND_URLS from '@/constants/backend-urls';
 interface GamePageProps { params: { game_id: string } }
 
 async function getGameFromParams({ params }: GamePageProps) {
-    const { data }: { data: GameType } = await axiosAuth.get(BACKEND_URLS.GAMES + params.game_id)
-    if (!data) {
+    console.log(`${BACKEND_URLS.GAMES}/${params.game_id}`);
+    
+    try {
+        const { data } = await axiosAuth.get<GameType>(BACKEND_URLS.GAMES+params.game_id);
+        return data;
+    } catch (error) {
         return null
     }
-    return data
 }
 
 export default async function Game({ params }: GamePageProps) {
     const game = await getGameFromParams({ params })
-
+    console.log(game);
+    
     if (!game) {
         notFound()
     }
     return (
         <GameContextProvider gameId={params.game_id}>
             <main className='py-2'>
-            <GamePlay />
+                <GamePlay />
             </main>
         </GameContextProvider>
     );

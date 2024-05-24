@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getSession, updateAccessToken } from './lib/sessions';
+import COOKIE_NAMES from './constants/cookies-names';
+import { createGame } from './lib/game';
 
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
@@ -12,6 +14,10 @@ export async function middleware(request: NextRequest) {
         if(path.startsWith('/refresh')){
             const redirectTo = request.nextUrl.searchParams.get("redirect_back")     
             return NextResponse.redirect(new URL(redirectTo ?? path, request.nextUrl))
+        }
+        if(path.startsWith('/lobby/create')){
+            const newGameId =  await createGame({ token: request.cookies.get(COOKIE_NAMES.ACCESS_TOKEN)?.value })
+            return NextResponse.redirect(new URL(`/lobby/game/${newGameId}`, request.nextUrl))
         }
         return await updateAccessToken(request)
     }

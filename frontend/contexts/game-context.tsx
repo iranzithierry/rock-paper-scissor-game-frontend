@@ -5,15 +5,15 @@ import { useAuth } from "./auth-context";
 import { toast } from "sonner";
 import { Choice, Player } from "@/types/ws";
 
-const DefaultProps = { players: [], choices: [], makeChoice: () => { }, joinGame: () => { }, startGame: () => { }, resetGame: () => { }};
+const DefaultProps = { players: [], choices: [], makeChoice: () => { }, startGame: () => { }, resetGame: () => { }, countDown: 10};
 
 export interface GameProps {
   players: Player[];
   choices: Choice[];
   makeChoice: (choice: string) => void;
-  joinGame: () => void;
   startGame: () => void;
-  resetGame: () => void
+  resetGame: () => void;
+  countDown: number;
 }
 
 export const GameContext = createContext<GameProps>(DefaultProps);
@@ -23,6 +23,7 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [choices, setChoices] = useState<Choice[]>([]);
+  const [countDown, startCountDown] = useState<number>(10);
 
   const HOST = "192.168.1.164:8000"
   const { sendJsonMessage } = useWebSocket(
@@ -54,6 +55,9 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
           case "game_notification":
             toast(data.message);
             break;
+          case "countdown":
+            startCountDown(data.remaining_time)
+            break;
         }
       },
     }
@@ -61,10 +65,6 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
 
   const makeChoice = (choice: string) => {
     if (user) sendJsonMessage({ type: "choose", choice: choice });
-  };
-
-  const joinGame = () => {
-    if (user) sendJsonMessage({ type: "join" });
   };
   const startGame = () => {
     if (user) sendJsonMessage({ type: "start" });
@@ -75,7 +75,7 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
 
   return (
     <GameContext.Provider
-      value={{ players, choices, makeChoice, joinGame, startGame, resetGame }}>
+      value={{ players, choices, makeChoice, startGame, resetGame, countDown }}>
       {children}
     </GameContext.Provider>
   );
