@@ -11,7 +11,7 @@ class Game(models.Model):
         return self.interactions.count() == 2
     
     def both_disconnected(self):
-        return self.interactions.filter(status='disconnected').count() == 2 or self.interactions.count() <= 1
+        return self.interactions.filter(status='disconnected').count() == 2
     
     def status(self):
         return "Full" if self.is_full() else "Open"

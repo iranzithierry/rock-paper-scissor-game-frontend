@@ -1,11 +1,11 @@
 import { ProfilePicture, UserType } from "./auth";
 
-export interface Choice {
+export interface ChoiceType {
     player:    string;
     choice:    string;
     timestamp: Date;
 }
 
-export interface Player extends UserType {
+export interface PlayerType extends UserType {
     status:          string;
 }

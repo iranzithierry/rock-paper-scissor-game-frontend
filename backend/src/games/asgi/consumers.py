@@ -26,9 +26,6 @@ class GameConsumer(JsonWebsocketConsumer):
         self.user = None
         self.game = None
         self.game_id = None
-        self.countdown_timer = None
-        self.play_timeout_timer = None
-        self.remaining_time = None
 
     def connect(self):
         self.initialize_user()
@@ -56,8 +53,7 @@ class GameConsumer(JsonWebsocketConsumer):
             self.channel_name,
         )
         if self.game.both_disconnected():
-            self.game.delete()
-        self.stop_play_timeout()
+           self.game.delete()
         return super().disconnect(code)
 
     def receive_json(self, content, **kwargs):
@@ -68,7 +64,7 @@ class GameConsumer(JsonWebsocketConsumer):
         elif message_type == "reset":
             self.reset_game()
         elif message_type == "start":
-            self.start_play_timeout()
+            pass
 
         return super().receive_json(content, **kwargs)
 
@@ -87,9 +83,10 @@ class GameConsumer(JsonWebsocketConsumer):
             self.evaluate_game_outcome()
 
     def handle_user_disconnect(self):
-        self.game.disconnect(user=self.user)
-        self.broadcast_interactions(set_status=False)
-        self.notify_lobby("left")
+        if  Interaction.objects.filter(player=self.user, game=self.game).exists():
+            self.game.disconnect(user=self.user)
+            self.broadcast_interactions(set_status=False)
+            self.notify_lobby("left")
 
     def broadcast_interactions(self, set_status=True):
         if set_status:
@@ -107,7 +104,7 @@ class GameConsumer(JsonWebsocketConsumer):
         )
 
     def set_player_status(self, status):
-        player_interaction = Interaction.objects.filter(player=self.user).first()
+        player_interaction = Interaction.objects.filter(player=self.user, game=self.game).first()
         if player_interaction:
             player_interaction.set_status(status)
 
@@ -120,15 +117,6 @@ class GameConsumer(JsonWebsocketConsumer):
             elif isinstance(game_result, User):
                 self.notify_lobby(custom_message=f"Winner is {game_result}")
                 self.display_game_choices()
-            self.stop_play_timeout()
-    
-    def handle_timeout(self):
-        if self.game.both_played():
-            self.evaluate_game_outcome()
-        else:
-            self.notify_lobby(custom_message="Game timed out")
-            self.display_game_choices()
-            Choice.objects.filter(game=self.game).delete()
 
     def display_game_choices(self):
         choices_data = [
@@ -161,44 +149,13 @@ class GameConsumer(JsonWebsocketConsumer):
         data = event['data']
         self.send_json(data)
 
-    def start_play_timeout(self, timeout_seconds=10):
-        self.stop_play_timeout()
-        self.remaining_time = timeout_seconds
-        self.play_timeout_timer = Timer(timeout_seconds, self.evaluate_game_outcome)
-        self.play_timeout_timer.start()
-        self.start_countdown()
-        self.notify_lobby(custom_message=f"Player turn timeout set for {timeout_seconds} seconds")
-
-    def stop_play_timeout(self):
-        if self.play_timeout_timer:
-            self.play_timeout_timer.cancel()
-        if self.countdown_timer:
-            self.countdown_timer.cancel()
-
     def reset_game(self):
         Choice.objects.filter(game=self.game).delete()
-        Interaction.objects.filter(game=self.game).update(status='disconnected')
         self.broadcast_interactions()
         self.notify_lobby(custom_message="Game has been reset")
         self.send_to_lobby(
             {
                 "type": "display_choices",
                 "choices": [],
-            },
-        )
-        self.start_play_timeout()
-
-    def start_countdown(self):
-        if self.remaining_time >= 0:
-            self.broadcast_countdown()
-            self.remaining_time -= 1
-            self.countdown_timer = Timer(1, self.start_countdown)
-            self.countdown_timer.start()
-
-    def broadcast_countdown(self):
-        self.send_to_lobby(
-            {
-                "type": "countdown",
-                "remaining_time": self.remaining_time,
             },
         )

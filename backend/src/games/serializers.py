@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Game, Interaction
+from src.users.serializers import PlayerSerializer
 
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,8 +14,7 @@ class GameSerializer(serializers.ModelSerializer):
     def to_representation(self, instance: Game):
         representation = super().to_representation(instance)
         players = [
-            {
-                "player": interaction.player.username,
+            {**PlayerSerializer(interaction.player).data,
             } for interaction in Interaction.objects.filter(game=instance)
         ]
         representation["players"] = players

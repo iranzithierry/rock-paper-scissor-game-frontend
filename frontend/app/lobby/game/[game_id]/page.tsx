@@ -28,7 +28,7 @@ export default async function Game({ params }: GamePageProps) {
     }
     return (
         <GameContextProvider gameId={params.game_id}>
-            <main className='py-2'>
+            <main className='p-2'>
                 <GamePlay />
             </main>
         </GameContextProvider>

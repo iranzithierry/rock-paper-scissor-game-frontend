@@ -3,27 +3,23 @@ import React, { createContext, ReactNode, useContext, useState } from "react";
 import useWebSocket from "react-use-websocket";
 import { useAuth } from "./auth-context";
 import { toast } from "sonner";
-import { Choice, Player } from "@/types/ws";
-
-const DefaultProps = { players: [], choices: [], makeChoice: () => { }, startGame: () => { }, resetGame: () => { }, countDown: 10};
+import { ChoiceType, PlayerType } from "@/types/ws";
 
 export interface GameProps {
-  players: Player[];
-  choices: Choice[];
-  makeChoice: (choice: string) => void;
-  startGame: () => void;
-  resetGame: () => void;
-  countDown: number;
+  players: PlayerType[];
+  choices: ChoiceType[];
+  makeChoice?: (choice: string) => void;
+  startGame?: () => void;
+  resetGame?: () => void;
 }
 
-export const GameContext = createContext<GameProps>(DefaultProps);
+export const GameContext = createContext<GameProps>({ players: [], choices: [] });
 
 export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string }> = ({ children, gameId }) => {
   const { user, accessToken } = useAuth();
 
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [choices, setChoices] = useState<Choice[]>([]);
-  const [countDown, startCountDown] = useState<number>(10);
+  const [players, setPlayers] = useState<PlayerType[]>([]);
+  const [choices, setChoices] = useState<ChoiceType[]>([]);
 
   const HOST = "192.168.1.164:8000"
   const { sendJsonMessage } = useWebSocket(
@@ -32,19 +28,8 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
       queryParams: {
         token: accessToken ?? "",
       },
-      onOpen: () => {
-        console.log("Connected to Game!");
-      },
-      onClose: () => {
-        console.log("Disconnected from Game!");
-      },
-      reconnectInterval: 2000,
-      reconnectAttempts: 3,
-      retryOnError: true,
-
       onMessage: (e: MessageEvent) => {
         const data = JSON.parse(e.data);
-        console.log("Received something", data);
         switch (data.type) {
           case "update_players":
             setPlayers(data.players);
@@ -54,9 +39,6 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
             break;
           case "game_notification":
             toast(data.message);
-            break;
-          case "countdown":
-            startCountDown(data.remaining_time)
             break;
         }
       },
@@ -75,7 +57,7 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
 
   return (
     <GameContext.Provider
-      value={{ players, choices, makeChoice, startGame, resetGame, countDown }}>
+      value={{ players, choices, makeChoice, startGame, resetGame }}>
       {children}
     </GameContext.Provider>
   );

@@ -36,7 +36,7 @@ export default function UserMenu({ user }: { user: UserType | null }) {
           </div>
         </PopoverContent>
         <PopoverTrigger asChild>
-          <button onClick={() => setOpenPopover(!openPopover)} className="flex items-center justify-center w-10 h-10 overflow-hidden transition-all duration-75  rounded-full focus:outline-none active:scale-95 sm:h-10 sm:w-10">
+          <button onClick={() => setOpenPopover(!openPopover)}>
             <UserUvatar user={user}/>
           </button>
         </PopoverTrigger>
