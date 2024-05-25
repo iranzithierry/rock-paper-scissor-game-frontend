@@ -28,16 +28,16 @@ services:
     depends_on:
       - db
 
-  queue:
-    build:
-      context: .
-      args:
-        REQUIREMENTS_FILE: dev.txt
-    restart: unless-stopped
-    env_file: .env.production
-    command: sh /entrypoint-queue.sh
-    volumes:
-      - ./:/app
+  # queue:
+  #   build:
+  #     context: .
+  #     args:
+  #       REQUIREMENTS_FILE: dev.txt
+  #   restart: unless-stopped
+  #   env_file: .env.production
+  #   command: sh /entrypoint-queue.sh
+  #   volumes:
+  #     - ./:/app
 
   # beat:
   #   build:
