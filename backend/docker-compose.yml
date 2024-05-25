@@ -21,8 +21,8 @@ services:
       - 8000:8000
     env_file: .env
     # command: 'sh -c "./manage.py runserver 0.0.0.0:8000"'
-    command: 'sh -c "./manage.py migrate --noinput && ./manage.py collectstatic --noinput && ./manage.py runserver 0.0.0.0:8000"'
-    # command: sh /entrypoint-web.sh
+    # command: 'sh -c "./manage.py migrate --noinput && ./manage.py collectstatic --noinput && ./manage.py runserver 0.0.0.0:8000"'
+    command: sh /entrypoint-web.sh
     volumes:
       - ./:/app
     depends_on:
