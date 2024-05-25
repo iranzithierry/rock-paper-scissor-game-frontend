@@ -21,3 +21,12 @@ COPY ./requirements/ ./requirements
 RUN pip install -r ./requirements/${REQUIREMENTS_FILE}
 
 COPY . ./
+
+
+# sudo docker run -it iranzithierry/jeezy:backend /bin/
+# docker-compose run --rm web ./manage.py migrate // run inside image
+# docker-compose run --rm web ./manage.py collectstatic --noinput 
+# sudo docker ps // see all runing containers
+# sudo docker down
+# sudo docker-compose restart // restart all containes
+# sudo docker exec -it e92fd59ecef4 mysql -u root -p // running in container
