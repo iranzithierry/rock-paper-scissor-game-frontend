@@ -28,6 +28,18 @@ services:
     depends_on:
       - db
 
+  daphne:
+    build:
+      context: .
+      args:
+        REQUIREMENTS_FILE: dev.txt
+    restart: unless-stopped
+    env_file: .env
+    command: sh -c "daphne -b 0.0.0.0 -p 8008 src.asgi:application"
+    depends_on:
+      - web
+    volumes:
+      - ./:/app
   # queue:
   #   build:
   #     context: .
