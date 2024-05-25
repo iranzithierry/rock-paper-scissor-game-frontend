@@ -1,4 +1,4 @@
-export const BACKEND_HOST = "http://89.116.227.175:8001"
+export const BACKEND_HOST = "http://89.116.227.175:8000"
 const BACKEND_URLS = {
     SIGNUP: `${BACKEND_HOST}/api/v1/users/`,
     LOGIN: `${BACKEND_HOST}/api/v1/token/`,
