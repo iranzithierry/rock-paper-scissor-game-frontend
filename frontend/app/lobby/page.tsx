@@ -52,11 +52,14 @@ const getGames = async () => {
         return data.results as GameType[];
     } catch (err) {
         const error = err as AxiosError
-        if (error?.response?.status === 401) {
-            return redirect('/refresh?redirect_back=/lobby')
-        }
-        if(error?.response?.status === 403) {
+        console.log(error.response?.data);
+        
+        // @ts-ignore
+        if (error?.response?.status === 401 && error.response.data?.code == "user_not_found") {
             return redirect('/logout?redirect_back=/lobby')
+        }
+        else if(error?.response?.status === 401) {
+            return redirect('/refresh?redirect_back=/lobby')
         }
     }
 }

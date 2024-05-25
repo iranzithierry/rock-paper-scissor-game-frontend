@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL(`/login?redirect_back=${path}`, request.nextUrl))
         }
         if(path.startsWith('/refresh')){
-            const redirectTo = request.nextUrl.searchParams.get("redirect_back")     
+            const redirectTo = request.nextUrl.searchParams.get("redirect_back") 
             return NextResponse.redirect(new URL(redirectTo ?? path, request.nextUrl))
         }
         if(path.startsWith('/lobby/create')){
