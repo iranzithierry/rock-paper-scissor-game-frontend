@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import BACKEND_URLS from '@/constants/backend-urls'
 import { SessionType, UserType } from '@/types/auth'
 
-export const runtime = 'edge'
+export const runtime = 'experimental-edge'
 const getCookieSessionValue = () => cookies().get("session")?.value;
 
 export async function createSession(payload: object) {
