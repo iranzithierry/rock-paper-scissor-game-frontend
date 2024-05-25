@@ -11,7 +11,7 @@ django-3-jet==1.0.8
 # celery==5.4.0
 
 # For the persistence stores
-# psycopg2==2.8.6
+psycopg2==2.8.6
 redis==3.5.3
 
 # Model Tools
