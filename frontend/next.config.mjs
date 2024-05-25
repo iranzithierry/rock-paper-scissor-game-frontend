@@ -24,14 +24,6 @@ const nextConfig = {
             },
         ],
     },
-    async rewrites() {
-        return [
-          {
-            source: '/client__api/:path*',
-            destination: process.env.BACKEND_HOST+'/api/:path*',
-          },
-        ]
-      },
     async redirects() {
         return [
             {

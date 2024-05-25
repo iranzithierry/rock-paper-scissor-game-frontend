@@ -12,11 +12,11 @@ export const metadata: Metadata = {
     title: "Sign up",
 }
 
-export default function SignUp() {
+export default function SignUp({ searchParams }: { searchParams: { redirect_back: string } }) {
     return (
         <>
             <div className="absolute top-0 right-0 p-4 z-20">
-                <LinkButton linkTo="/login" variant={'outline'}>
+                <LinkButton linkTo={searchParams?.redirect_back ? `/login?redirect_back=${searchParams?.redirect_back}` : '/login'} variant={'outline'}>
                     Login
                 </LinkButton>
             </div>
@@ -31,7 +31,7 @@ export default function SignUp() {
                                 Enter your email below to create your account
                             </p>
                         </div>
-                        <Form type="register" submitHandler={submitHandler} />
+                        <Form type="register" submitHandler={submitHandler} redirectTo={searchParams?.redirect_back} />
                         <div className="sm:w-[400px] mx-auto">
                             <p className="px-8 text-center text-sm text-muted-foreground">
                                 By clicking continue, you agree to our{" "}

@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import React, { createContext, ReactNode, useContext, useState, useCallback } from "react";
 import useWebSocket from "react-use-websocket";
 import { useAuth } from "./auth-context";
 import { toast } from "sonner";
@@ -19,60 +19,77 @@ export interface GameProps {
   gameFinished?: boolean;
 }
 
-export const GameContext = createContext<GameProps>({ players: [], choices: [], currentTurn: "" });
+const initialGameState: GameProps = {
+  players: [],
+  choices: [],
+  currentTurn: null,
+  user: null,
+  selectedChoice: null,
+  gameFinished: false,
+};
+
+export const GameContext = createContext<GameProps>(initialGameState);
 
 export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string }> = ({ children, gameId }) => {
   const { user, accessToken } = useAuth();
 
   const [players, setPlayers] = useState<PlayerType[]>([]);
   const [choices, setChoices] = useState<ChoiceType[]>([]);
-  const [selectedChoice, setSelectedChoice] = React.useState("");
-  const [gameFinished, setGameFinished] = React.useState(false);
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [gameFinished, setGameFinished] = useState<boolean>(false);
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
+
+  const handleWebSocketMessage = useCallback((e: MessageEvent) => {
+    const data = JSON.parse(e.data);
+    switch (data.type) {
+      case "update_players":
+        setPlayers(data.players);
+        break;
+      case "display_choices":
+        setChoices(data.choices);
+        setGameFinished(true);
+        break;
+      case "game_notification":
+        toast(data.message);
+        break;
+      case "reset":
+        resetGameState();
+        break;
+      case "turn_change":
+        setCurrentTurn(data.next_turn);
+        break;
+      default:
+        break;
+    }
+  }, []);
 
   const { sendJsonMessage } = useWebSocket(
     `ws://${BACKEND_HOST.split("//")[1]}/game/${gameId}/`,
     {
-      queryParams: {
-        token: accessToken ?? "",
-      },
-      onMessage: (e: MessageEvent) => {
-        const data = JSON.parse(e.data);
-        switch (data.type) {
-          case "update_players":
-            setPlayers(data.players);
-            break;
-          case "display_choices":
-            setChoices(data.choices);
-            setGameFinished(true)
-            break;
-          case "game_notification":
-            toast(data.message);
-            break;
-          case "reset":
-            setChoices([])
-            setCurrentTurn(null)
-            setSelectedChoice("");
-            setGameFinished(false)
-            break
-          case "turn_change":
-            setCurrentTurn(data.next_turn);
-            break;
-        }
-      },
+      queryParams: { token: accessToken ?? "" },
+      onMessage: handleWebSocketMessage,
     }
   );
 
   const makeChoice = (choice: string) => {
-    if (user) sendJsonMessage({ type: "choose", choice: choice });
+    if (user) sendJsonMessage({ type: "choose", choice });
     setSelectedChoice(choice);
   };
+
   const startGame = () => {
     if (user) sendJsonMessage({ type: "start" });
-  }
+  };
+
   const resetGame = () => {
     if (user) sendJsonMessage({ type: "reset" });
-  }
+  };
+
+  const resetGameState = () => {
+    setChoices([]);
+    setCurrentTurn(null);
+    setSelectedChoice(null);
+    setGameFinished(false);
+  };
 
   return (
     <GameContext.Provider
