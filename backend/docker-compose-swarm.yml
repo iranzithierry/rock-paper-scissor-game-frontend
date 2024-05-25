@@ -28,10 +28,10 @@ services:
     deploy:
       restart_policy:
         condition: none
-    env_file: .env
+    env_file: .env.production
     entrypoint: /entrypoint-manage.sh
     volumes:
-      - ./.env:/app/.env
+      - ./.env:/app/.env.production
       - static-files:/app/static
       - media-files:/app/media
 
@@ -42,12 +42,12 @@ services:
       replicas: 2
       restart_policy:
         condition: any
-    env_file: .env
+    env_file: .env.production
     command: sh /entrypoint-web.sh
     ports:
       - 8001:8000
     volumes:
-      - ./.env:/app/src/.env
+      - ./.env:/app/src/.env.production
       - static-files:/app/static
 
   queue:
@@ -55,10 +55,10 @@ services:
     deploy:
       restart_policy:
         condition: any
-    env_file: .env
+    env_file: .env.production
     command: sh /entrypoint-queue.sh
     volumes:
-      - ./.env:/app/.env
+      - ./.env:/app/.env.production
       - static-files:/app/static
 
   beat:
@@ -66,10 +66,10 @@ services:
     deploy:
       restart_policy:
         condition: any
-    env_file: .env
+    env_file: .env.production
     command: sh /entrypoint-beat.sh
     volumes:
-      - ./.env:/app/.env
+      - ./.env:/app/.env.production
       - static-files:/app/static
 
 volumes:
