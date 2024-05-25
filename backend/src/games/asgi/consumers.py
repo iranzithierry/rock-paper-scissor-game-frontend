@@ -14,11 +14,13 @@ User = get_user_model()
 
 logger = logging.getLogger(__name__)
 
+
 class UUIDEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, UUID):
             return obj.hex
         return json.JSONEncoder.default(self, obj)
+
 
 class GameConsumer(JsonWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -39,11 +41,12 @@ class GameConsumer(JsonWebsocketConsumer):
             self.channel_name,
         )
 
-        if not self.game.is_full():
+        if not self.game.is_full(): 
             # self.notify_lobby(custom_message="Waiting for opponent to join")
             # self.set_player_status("waiting")
             self.game.connect(self.user)
-            self.notify_lobby("joined")
+            if  not self.game.is_first_player(self.user):
+                self.notify_lobby("joined")
         self.broadcast_interactions()
 
     def disconnect(self, code):
@@ -53,7 +56,7 @@ class GameConsumer(JsonWebsocketConsumer):
             self.channel_name,
         )
         if self.game.both_disconnected():
-           self.game.delete()
+            self.game.delete()
         return super().disconnect(code)
 
     def receive_json(self, content, **kwargs):
@@ -81,9 +84,10 @@ class GameConsumer(JsonWebsocketConsumer):
             self.notify_lobby(custom_message="Wait for your opponent to play")
         else:
             self.evaluate_game_outcome()
+        self.notify_turn_change()
 
     def handle_user_disconnect(self):
-        if  Interaction.objects.filter(player=self.user, game=self.game).exists():
+        if Interaction.objects.filter(player=self.user, game=self.game).exists():
             self.game.disconnect(user=self.user)
             self.broadcast_interactions(set_status=False)
             self.notify_lobby("left")
@@ -117,6 +121,12 @@ class GameConsumer(JsonWebsocketConsumer):
             elif isinstance(game_result, User):
                 self.notify_lobby(custom_message=f"Winner is {game_result}")
                 self.display_game_choices()
+
+    def notify_turn_change(self):
+        next_turn_player = self.game.get_next_turn_player(self.user)
+        if next_turn_player:
+            logger.debug(f"Next turn is {next_turn_player.username}")
+            self.send_to_lobby({"type": "turn_change", "next_turn": next_turn_player.username})
 
     def display_game_choices(self):
         choices_data = [
@@ -155,7 +165,6 @@ class GameConsumer(JsonWebsocketConsumer):
         self.notify_lobby(custom_message="Game has been reset")
         self.send_to_lobby(
             {
-                "type": "display_choices",
-                "choices": [],
+                "type": "reset",
             },
         )

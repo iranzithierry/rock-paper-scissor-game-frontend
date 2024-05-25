@@ -45,7 +45,11 @@ export default async function GamesCard({ getGames }: { getGames: () => Promise<
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant={game.status == 'Full' ? 'destructive' : 'success'}>{game.status}</Badge>
+                                {game.status == 'Open' || game.players.some(player => player.username == user?.username)?
+                                    <Badge variant={'default'}>Open</Badge>
+                                    :
+                                    <Badge variant={'destructive'}>Full</Badge>
+                                }
                                 </TableCell>
                                 <TableCell>
                                     {/* @ts-ignore */}

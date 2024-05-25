@@ -13,6 +13,11 @@ class Game(models.Model):
     def both_disconnected(self):
         return self.interactions.filter(status='disconnected').count() == 2
     
+    def is_first_player(self, user: User):
+        first_player = self.interactions.filter(player=user).first()
+        if first_player:
+            return first_player.status == 'connected'
+    
     def status(self):
         return "Full" if self.is_full() else "Open"
 
@@ -30,6 +35,20 @@ class Game(models.Model):
         if player:
             player.status = 'disconnected'
             player.save()
+    def random_player(self):
+        return self.interactions.filter(status='connected').order_by('?').first().player
+    
+    def get_next_turn_player(self, current_user: User):
+        interactions = self.interactions.all()
+        choices = self.choices.all()
+        if not interactions:
+            return
+        if choices.count() == 0:
+            return interactions.exclude(player=current_user).first().player
+        elif choices.count() == 1:
+            return interactions.exclude(player=choices.first().player).first().player
+
+        return None
 
     class Meta:
         db_table = "games"

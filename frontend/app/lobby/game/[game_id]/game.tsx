@@ -8,6 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { RefreshCcw } from 'lucide-react';
 import { PlayerType } from '@/types/ws';
 import UserUvatar from '@/components/user-avatar';
+import React, { use } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/auth-context';
+import { UserType } from '@/types/auth';
 
 const options = [
     { value: 'rock', label: 'Rock', icon: '✊' },
@@ -17,12 +21,11 @@ const options = [
 
 export default function GamePlay() {
 
-    const { players, choices, makeChoice, startGame, resetGame } = useGame();
+    const { user, players, selectedChoice, gameFinished, currentTurn, choices, makeChoice, startGame, resetGame } = useGame();
 
-
+    const isMyTurn = () => currentTurn ? currentTurn == user?.username : true
     const statusPlayers = (status = "connected") => players.filter(player => player.status === status);
     const areTwoPlayers = getTwoPlayers(statusPlayers, players);
-
     return (
         <Card className='mx-auto w-full max-w-4xl p-6'>
             <CardHeader>
@@ -41,7 +44,7 @@ export default function GamePlay() {
                         <div className="space-y-2">
                             {players.length !== 0 && players.map((player) => (
                                 <div key={player.id} className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground p-2 rounded-xl cursor-pointer">
-                                    <PlayerCard player={player} />
+                                    <PlayerCard player={player} currentTurn={currentTurn} gameFinished={gameFinished} user={user} />
                                 </div>
                             ))}
                         </div>
@@ -50,12 +53,13 @@ export default function GamePlay() {
                         <Tooltip delayDuration={100}>
                             <TooltipTrigger asChild>
                                 <div>
-                                <Button className='w-full' disabled={!areTwoPlayers()} onClick={startGame}>
-                                    Start Game
-                                </Button>
+                                    {!gameFinished &&
+                                        <Button className='w-full' disabled={!areTwoPlayers()} onClick={startGame}>
+                                            Start Game
+                                        </Button>}
                                 </div>
                             </TooltipTrigger>
-                            <TooltipContent> 
+                            <TooltipContent>
                                 <p>{!areTwoPlayers() ? "You must be 2 players to start game" : "Click to start game"} </p>
                             </TooltipContent>
                         </Tooltip>
@@ -67,10 +71,11 @@ export default function GamePlay() {
                             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Game</h2>
                         </div>
                         <div>
-                            <Badge variant={'success'}>
-                                Your turn 
-                                {/* Waiting for opponent */}
-                            </Badge>
+                            {!gameFinished && (
+                                <Badge variant={'success'}>
+                                    {isMyTurn() ? "Your Turn" : "Opponent's Turn"}
+                                </Badge>
+                            )}
                         </div>
                     </div>
                     <div className="flex flex-col items-center justify-center gap-6">
@@ -78,7 +83,7 @@ export default function GamePlay() {
                             {options.map((option, index) => (
                                 <Tooltip key={index}>
                                     <TooltipTrigger asChild>
-                                        <Button disabled={!areTwoPlayers()} variant={'outline'} onClick={() => makeChoice?.(option.value)} className='h-16 w-16 rounded-full text-4xl'>
+                                        <Button disabled={!areTwoPlayers() || !isMyTurn() || gameFinished} variant={'outline'} onClick={() => makeChoice?.(option.value)} className={`h-16 w-16 rounded-full text-4xl ${selectedChoice == option.value && '!bg-black hover:!bg-black'}`}>
                                             {option.icon}
                                         </Button>
                                     </TooltipTrigger>
@@ -95,9 +100,9 @@ export default function GamePlay() {
                                         {choice.player} chose <span className='font-semibold capitalize'>{choice.choice}</span>
                                     </div>
                                 ))}
-                                {choices.length !== 0 &&
-                                    <Button size={'lg'} className='w-full'  onClick={resetGame}>
-                                        Reset <RefreshCcw className="h-4 w-4 ml-2" />
+                                {gameFinished &&
+                                    <Button size={'lg'} className='w-full' onClick={resetGame}>
+                                        Reset <RefreshCcw className="h-4 w-4 ml-2 animate-spin rotate-180" />
                                     </Button>
                                 }
                             </ul>
@@ -110,15 +115,18 @@ export default function GamePlay() {
 
 }
 
-const PlayerCard = ({ player }: { player: PlayerType }) => {
+const PlayerCard = ({ user, player, currentTurn, gameFinished }: { player: PlayerType, currentTurn: string | null, user: UserType | null | undefined, gameFinished: boolean | undefined }) => {
     return (
         <div className="flex items-center space-x-2 w-full">
             <UserUvatar user={player} success={player.status == "connected"} />
             <div className='flex flex-col w-full'>
                 <p className="text-lg font-medium">{player.username}</p>
-                {/* <div className='flex justify-between'>
-                    <Badge variant={player.status === 'connected' ? 'success' : 'warning'} className='capitalize'>{player.status}</Badge>
-                </div> */}
+                <div className='flex justify-between'>
+                    {currentTurn == player.username && player.username !== user?.username && !gameFinished &&
+                        <Badge variant={'success'} className='capitalize'>
+                            Thinking
+                        </Badge>}
+                </div>
             </div>
         </div>
     )

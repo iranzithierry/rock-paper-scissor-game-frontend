@@ -33,7 +33,7 @@ export default function LeaderBoardCard() {
                             <TableCell>12345</TableCell>
                             <TableCell>
                                 <Avatar>
-                                    <AvatarImage alt="@iranzithierry" src="/placeholder-avatar.jpg" />
+                                    <AvatarImage alt="@iranzithierry" src="" />
                                     <AvatarFallback>JP</AvatarFallback>
                                 </Avatar>
                             </TableCell>
