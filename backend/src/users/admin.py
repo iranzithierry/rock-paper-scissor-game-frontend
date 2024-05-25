@@ -13,8 +13,6 @@ class UserAdmin(UserAdmin):
             _('Personal info'),
             {
                 'fields': (
-                    'first_name',
-                    'last_name',
                     'email',
                 )
             },

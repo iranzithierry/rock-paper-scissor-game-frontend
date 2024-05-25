@@ -22,7 +22,7 @@ const useCountdown = (initialCount: number, onFinish: () => void) => {
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [isActive, countDown]);
+    }, [isActive, countDown, onFinish]);
 
     return { countDown, startCountDown };
 };

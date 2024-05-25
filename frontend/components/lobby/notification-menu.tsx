@@ -22,7 +22,7 @@ export default function NotificationMenu() {
                     <TabsContent value="inbox">
                         <div className="flex items-start space-x-4 rounded-md bg-background cursor-pointer hover:bg-accent p-1 text-accent-foreground transition-all">
                             <Avatar>
-                                <AvatarImage alt="@jaredpalmer" src="/placeholder-avatar.jpg" />
+                                <AvatarImage alt="@jaredpalmer" src="" />
                                 <AvatarFallback color='red'>T</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">

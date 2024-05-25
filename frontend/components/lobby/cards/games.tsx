@@ -6,10 +6,11 @@ import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@
 import { Badge } from "@/components/ui/badge"
 import { GameType } from '@/types/game'
 import { LinkButton } from '@/components/ui/link-button'
-import { useAuth } from '@/contexts/auth-context';
 import { getSession } from '@/lib/sessions'
-import {Popover, PopoverTrigger, PopoverContent} from '@/components/ui/popover'
-import { Form } from '@/components/auth/form'
+import UserUvatar from '@/components/user-avatar'
+import { LockIcon, LockKeyholeOpen } from 'lucide-react'
+import { PlayerType } from '@/types/ws'
+
 export default async function GamesCard({ getGames }: { getGames: () => Promise<GameType[] | undefined> }) {
     const sessions = await getSession()
     const user = sessions?.user
@@ -33,14 +34,26 @@ export default async function GamesCard({ getGames }: { getGames: () => Promise<
                     <TableBody>
                         {games && games.map((game, _) => (
                             <TableRow key={game.id}>
-                                <TableCell>{game.mode}</TableCell>
-                                <TableCell>{game.status == 'Full' ? '2/2' : '1/2'}</TableCell>
                                 <TableCell>
-                                    <Badge variant={game.status == 'Full' ? 'destructive' : 'success'}>{game.status}</Badge>
+                                    {game.status == 'Full' ? <LockIcon className='h-4 w-4' /> : <LockKeyholeOpen className='h-4 w-4' />}
+                                </TableCell>
+                                <TableCell>
+                                    <div className='flex [&>:not(:last-of-type)]:-mr-1'>
+                                        {game.players.map((player: PlayerType, index: number) => (
+                                            <UserUvatar  loading='lazy' key={index} user={player} size='sm' extraClass='[&>*]:aspect-square' />
+                                        ))}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                {game.status == 'Open' || game.players.some(player => player.username == user?.username)?
+                                    <Badge variant={'default'}>Open</Badge>
+                                    :
+                                    <Badge variant={'destructive'}>Full</Badge>
+                                }
                                 </TableCell>
                                 <TableCell>
                                     {/* @ts-ignore */}
-                                    {game.status == 'Open' || game.players.some(player => player.player == user?.username) ?
+                                    {game.status == 'Open' || game.players.some(player => player.username == user?.username) ?
                                         <LinkButton linkTo={`/lobby/game/${game.id}`} size="sm">Join</LinkButton>
                                         :
                                         <Button size="sm" disabled>Join</Button>
@@ -52,7 +65,7 @@ export default async function GamesCard({ getGames }: { getGames: () => Promise<
                 </Table>
             </CardContent>
             <CardFooter>
-               <LinkButton className="ml-auto" linkTo="/lobby/create" size="sm">Create Game</LinkButton>
+                <LinkButton className="ml-auto" linkTo="/lobby/create" size="sm">Create Game</LinkButton>
             </CardFooter>
         </Card>
     )

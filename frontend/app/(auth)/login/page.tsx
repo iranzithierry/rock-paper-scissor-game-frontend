@@ -13,11 +13,11 @@ export const metadata: Metadata = {
     title: "Login",
 }
 
-export default async function LoginPage() {
+export default async function LoginPage({ searchParams }: { searchParams: { redirect_back: string } }) {
     return (
         <>
             <div className="absolute top-0 right-0 p-4 z-20">
-                <LinkButton linkTo="/register" variant={'outline'}>
+                <LinkButton linkTo={searchParams?.redirect_back ? `/register?redirect_back=${searchParams?.redirect_back}` : '/register'} variant={'outline'}>
                     Sign up
                 </LinkButton>
             </div>

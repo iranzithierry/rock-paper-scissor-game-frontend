@@ -10,9 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useRouter, useSearchParams } from "next/navigation"
 
-interface FormProps extends React.HTMLAttributes<HTMLDivElement> { type?: string, submitHandler: Function } { }
+interface FormProps extends React.HTMLAttributes<HTMLDivElement> { type?: string, submitHandler: Function, redirectTo?: string | null } { }
 
-export function Form({ className, type = "register", submitHandler, ...props }: FormProps) {
+export function Form({ className, type = "register", submitHandler, redirectTo, ...props }: FormProps) {
   const router = useRouter()
   const params = useSearchParams();
 
@@ -24,7 +24,6 @@ export function Form({ className, type = "register", submitHandler, ...props }: 
     if (response) {
       const { error, message }: { error?: string, message?: string } = response
       if (message == "Done") {
-        let redirectTo = params.get("redirect_back")
         if (redirectTo) return router.push(redirectTo)
         return router.push('/lobby')
       }
