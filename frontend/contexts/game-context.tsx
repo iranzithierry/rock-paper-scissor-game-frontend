@@ -65,7 +65,7 @@ export const GameContextProvider: React.FC<{ children: ReactNode; gameId: string
 
   const { sendJsonMessage } = useWebSocket(
     // `ws://${BACKEND_HOST.split("//")[1]}/ws/game/${gameId}/`,
-    `https://skizzy.ebuzzie.com/ws/game/${gameId}/`,
+    `https://skizzy.ebuzzie.com:8000/ws/game/${gameId}/`,
     {
       queryParams: { token: accessToken ?? "" },
       onMessage: handleWebSocketMessage,
