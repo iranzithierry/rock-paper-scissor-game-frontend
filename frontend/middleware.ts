@@ -4,6 +4,7 @@ import { getSession, updateAccessToken } from './lib/sessions';
 import COOKIE_NAMES from './constants/cookies-names';
 import { createGame } from './lib/game';
 
+export const runtime = 'edge'
 export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname
     if(process.env.MAINTENANCE != "true"){
