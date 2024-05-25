@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
             const redirectTo = request.nextUrl.searchParams.get("redirect_back") 
             return NextResponse.redirect(new URL(redirectTo ?? path, request.nextUrl))
         }
-        if(path == '/lobby/create'){
+        if(path === '/lobby/create'){
             const newGameId =  await createGame({ token: request.cookies.get(COOKIE_NAMES.ACCESS_TOKEN)?.value })
             return NextResponse.redirect(new URL(`/lobby/game/${newGameId}`, request.nextUrl))
         }
