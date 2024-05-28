@@ -22,8 +22,7 @@ RUN pip install -r ./requirements/${REQUIREMENTS_FILE}
 
 COPY . ./
 
-
-# sudo docker run -it iranzithierry/jeezy:backend /bin/
+# docker run -it --rm 49710d6efee8 /bin/bash
 # docker-compose run --rm web ./manage.py migrate // run inside image
 # docker-compose run --rm web ./manage.py collectstatic --noinput 
 # sudo docker ps // see all runing containers

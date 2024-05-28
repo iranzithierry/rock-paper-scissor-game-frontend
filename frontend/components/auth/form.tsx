@@ -24,8 +24,8 @@ export function Form({ className, type = "register", submitHandler, redirectTo, 
     if (response) {
       const { error, message }: { error?: string, message?: string } = response
       if (message == "Done") {
-        if (redirectTo) return router.push(redirectTo)
-        return router.push('/lobby')
+        if (redirectTo) return window.location.replace(redirectTo)
+        return window.location.replace("/lobby")
       }
       error ? toast.error(message) : toast.success(message)
     } setSubmitting(false)
